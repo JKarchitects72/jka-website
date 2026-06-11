@@ -1,0 +1,86 @@
+---
+const { title = "jihad khairallah architects." } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet" />
+  <style is:global>@import "../styles/global.css";</style>
+  <script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": ["ProfessionalService", "ArchitecturalService"],
+  "name": "jihad khairallah architects",
+  "alternateName": "JKA",
+  "url": "https://jihadk.com",
+  "email": "mail@jihadk.com",
+  "foundingDate": "1998",
+  "founder": { "@type": "Person", "name": "Jihad Khairallah" },
+  "description": "minimalist architecture and interior architecture practice founded in beirut in 1998, working across lebanon, the levant, and the gulf.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Riverside 2404",
+    "addressLocality": "Sin El Fil",
+    "addressRegion": "Beirut",
+    "addressCountry": "LB"
+  },
+  "areaServed": ["Lebanon", "United Arab Emirates", "Saudi Arabia", "Qatar"],
+  "knowsAbout": ["residential architecture", "interior architecture", "bespoke furniture design"]
+}) } />
+</head>
+<body>
+
+  <header class="site-chrome">
+    <a class="brand-logo-link" href="/" aria-label="jka — home">
+      <img src="/jka-monogram.png" alt="jka" class="brand-logo" />
+    </a>
+    <button class="menu-glyph" id="menuGlyph" aria-label="open menu"><span></span><span></span></button>
+  </header>
+
+  <div class="menu-overlay" id="menuOverlay">
+    <button class="menu-close" id="menuClose">close</button>
+    <ul class="menu-list">
+      <li><a href="/object">object &amp; product</a></li>
+      <li><a href="/studio">tectonic identity &amp; studio</a></li>
+      <li><a href="/commission">commission an enquiry</a></li>
+      <li><a href="/archive">spatial archive</a></li>
+    </ul>
+  </div>
+
+  <div class="threshold-veil" id="veil"></div>
+
+  <slot />
+
+  <script>
+    // the interface wake
+    const wake = () => document.body.classList.add('awake');
+    window.addEventListener('mousemove', wake, { once: true });
+    window.addEventListener('scroll', wake, { once: true });
+    window.addEventListener('touchstart', wake, { once: true });
+
+    // menu
+    const overlay = document.getElementById('menuOverlay');
+    document.getElementById('menuGlyph')?.addEventListener('click', () => overlay?.classList.add('open'));
+    document.getElementById('menuClose')?.addEventListener('click', () => overlay?.classList.remove('open'));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay?.classList.remove('open'); });
+
+    // the white interstitial — crossing between pages
+    const veil = document.getElementById('veil');
+    document.addEventListener('click', (e) => {
+      const link = (e.target as Element).closest('a[href^="/"]');
+      if (!link) return;
+      e.preventDefault();
+      veil?.classList.add('crossing');
+      setTimeout(() => { window.location.href = (link as HTMLAnchorElement).href; }, 300);
+    });
+
+    // the quiet settle
+   const observer = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add('in'); observer.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.settle').forEach((el) => observer.observe(el));

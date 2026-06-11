@@ -1,0 +1,72 @@
+---
+import Base from "../layouts/Base.astro";
+const projects = [
+  { slug: "villa-koura", name: "villa koura", year: "2017", typology: "residential" },
+  { slug: "villa-hariss", name: "villa hariss", year: "2019", typology: "residential" },
+  { slug: "", name: "private residence a&h", year: "2021", typology: "residential" },
+];
+const legacy = [
+  { name: "daher residence", year: "2008", typology: "residential" },
+  { name: "jeans couture", year: "2004", typology: "retail" },
+];
+---
+<Base title="spatial archive — jka">
+  <div class="archive-head">
+    <div class="archive-typology-filter">
+      <button class="active" data-filter="residential">residential</button>
+      <button data-filter="workplace">workplace</button>
+      <button data-filter="retail">retail</button>
+    </div>
+  </div>
+  <div class="silence-minor"></div>
+  <section id="archiveList">
+    {projects.map((p) => (
+      <a class="cms-index-plate settle" href={p.slug ? `/projects/${p.slug}` : "#"} data-typology={p.typology}>
+        <div class="index-img"><span class="plate-label">[ index image — {p.name} ]</span></div>
+        <div class="index-trace">{p.name} <span>{p.year}</span></div>
+      </a>
+    ))}
+    <div class="cms-era-threshold">earlier work — 1998–2010</div>
+    {legacy.map((p) => (
+      <a class="cms-index-plate legacy settle" href="#" data-typology={p.typology}>
+        <div class="index-img"><span class="plate-label">[ legacy — {p.name} ]</span></div>
+        <div class="index-trace">{p.name} <span>{p.year}</span></div>
+      </a>
+    ))}
+  </section>
+  <a class="commission-line" href="/commission"><span>commission an enquiry</span><span>→</span></a>
+  <footer class="site-footer">
+    <a class="brand-logo-link" href="/" aria-label="jka — home">
+      <img src="/jka-monogram.png" alt="jka" class="brand-logo footer" />
+    </a>
+    <a class="trace" href="mailto:mail@jihadk.com">mail@jihadk.com</a>
+    <nav class="footer-social" aria-label="social links">
+      <a href="https://instagram.com/jihadkhairallaharchitects" target="_blank" rel="noopener noreferrer" aria-label="instagram">
+        <img src="/icon-instagram.png" alt="" class="social-icon" />
+      </a>
+      <a href="https://facebook.com/jihadkhairallaharchitects" target="_blank" rel="noopener noreferrer" aria-label="facebook">
+        <img src="/icon-facebook.png" alt="" class="social-icon" />
+      </a>
+      <a href="https://linkedin.com/in/jihadkhairallah" target="_blank" rel="noopener noreferrer" aria-label="linkedin">
+        <img src="/icon-linkedin.png" alt="" class="social-icon" />
+      </a>
+    </nav>
+    <span class="trace copyright">© jka — beirut, est. 1998</span>
+  </footer>
+  <script>
+    document.querySelectorAll('.archive-typology-filter button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.archive-typology-filter button').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.getAttribute('data-filter');
+        document.querySelectorAll('#archiveList .cms-index-plate').forEach((item) => {
+          (item as HTMLElement).style.display = item.getAttribute('data-typology') === f ? '' : 'none';
+        });
+        const anyLegacy = [...document.querySelectorAll('#archiveList .cms-index-plate.legacy')]
+          .some((i) => i.getAttribute('data-typology') === f);
+        const thr = document.querySelector('.cms-era-threshold') as HTMLElement;
+        if (thr) thr.style.display = anyLegacy ? '' : 'none';
+      });
+    });
+  </script>
+</Base>
