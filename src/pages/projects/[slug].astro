@@ -1,0 +1,111 @@
+---
+import Base from "../../layouts/Base.astro";
+import { publishedProjects } from "../../data/projects";
+
+export async function getStaticPaths() {
+  return publishedProjects.map((p) => ({
+    params: { slug: p.slug },
+    props: { project: p },
+  }));
+}
+
+const { project } = Astro.props;
+const idx = publishedProjects.findIndex((p) => p.slug === project.slug);
+const next = publishedProjects[(idx + 1) % publishedProjects.length];
+const meta = [project.typology, project.location, project.year, project.area]
+  .filter(Boolean).join(" — ");
+---
+<Base title={`${project.name} — jka`}
+      description={project.narrative?.slice(0, 150)}>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": project.name,
+    "creator": { "@type": "Organization", "name": "Jihad Khairallah Architects" },
+    "dateCreated": project.year,
+    "locationCreated": { "@type": "Place", "name": project.location },
+    "material": project.materials,
+    "about": project.narrative,
+  })} />
+
+  <section class="cms-project-hero">
+    <span class="hero-media-note">{project.heroNote}</span>
+    <div class="hero-title-block">
+      <h1 class="project-title">{project.name}</h1>
+      <p class="project-meta">{meta}</p>
+    </div>
+  </section>
+  <div class="silence-module"></div>
+
+  {project.narrative && (
+    <section class="cms-narrative settle">
+      <p class="narrative-text">{project.narrative}</p>
+      <div></div>
+    </section>
+  )}
+  <div class="silence-module"></div>
+
+  {project.media?.map((m, i) => (
+    <>
+      {m.kind === "plate" ? (
+        <section class="cms-plate short settle"><span class="plate-label">{m.labels[0]}</span></section>
+      ) : (
+        <section class="cms-diptych-row settle">
+          <div class="cms-plate"><span class="plate-label">{m.labels[0]}</span></div>
+          <div class="cms-plate"><span class="plate-label">{m.labels[1]}</span></div>
+        </section>
+      )}
+      {i < project.media.length - 1 && <div style="height:2px"></div>}
+    </>
+  ))}
+
+  {project.materials && (
+    <>
+      <div class="silence-module"></div>
+      <section class="cms-material-strip settle">
+        {project.materials.map((mat) => (
+          <figure>
+            <div class="material-crop"><span class="plate-label">[ crop ]</span></div>
+            <figcaption>{mat}</figcaption>
+          </figure>
+        ))}
+      </section>
+    </>
+  )}
+
+  {project.objectName && (
+    <>
+      <div class="silence-module"></div>
+      <section class="cms-object-datum settle">
+        <div>
+          <span class="eyebrow">object</span>
+          <div class="object-name">{project.objectName}</div>
+          <a class="object-link" href="/object">{project.objectLink}</a>
+        </div>
+        <div class="object-plate"><span class="plate-label">{project.objectPlate}</span></div>
+      </section>
+    </>
+  )}
+
+  {project.closingPlate && (
+    <>
+      <div class="silence-module"></div>
+      <section class="cms-plate short settle"><span class="plate-label">{project.closingPlate}</span></section>
+    </>
+  )}
+
+  <a class="cms-terminus" href={`/projects/${next.slug}`}><span>next — {next.name}</span><span>→</span></a>
+  <a class="commission-line" href="/commission"><span>commission an enquiry</span><span>→</span></a>
+  <footer class="site-footer">
+    <a class="brand-logo-link" href="/" aria-label="jka — home">
+      <img src="/jka-monogram.png" alt="jka" class="brand-logo footer" />
+    </a>
+    <a class="trace" href="mailto:mail@jihadk.com">mail@jihadk.com</a>
+    <nav class="footer-social" aria-label="social links">
+      <a href="https://instagram.com/jihadkhairallaharchitects" target="_blank" rel="noopener noreferrer" aria-label="instagram"><img src="/icon-instagram.png" alt="" class="social-icon" /></a>
+      <a href="https://facebook.com/jihadkhairallaharchitects" target="_blank" rel="noopener noreferrer" aria-label="facebook"><img src="/icon-facebook.png" alt="" class="social-icon" /></a>
+      <a href="https://linkedin.com/in/jihadkhairallah" target="_blank" rel="noopener noreferrer" aria-label="linkedin"><img src="/icon-linkedin.png" alt="" class="social-icon" /></a>
+    </nav>
+    <span class="trace copyright">© jka — beirut, est. 1998</span>
+  </footer>
+</Base>
