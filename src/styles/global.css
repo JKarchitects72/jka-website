@@ -156,6 +156,8 @@ body.awake .menu-glyph, .menu-glyph:hover { opacity: 1; }
   font-size: var(--type-datum); letter-spacing: .1em; transition: color .25s ease;
 }
 .commission-line:hover { color: var(--trace); }
+.commission-line { transition: opacity 0.4s ease; }
+.commission-line:hover { opacity: 0.55; }
 
 .site-footer {
   display: flex; align-items: center; gap: 20px;
@@ -174,13 +176,7 @@ body.awake .menu-glyph, .menu-glyph:hover { opacity: 1; }
 }
 .footer-social a:hover .social-icon { opacity: 1; }
 
-/* ---------- responsive ---------- */
-@media (max-width: 760px) {
-  .cms-feature-grid { grid-template-columns: 1fr; }
-  .feature-item.tall .feature-plate, .feature-item.wide .feature-plate { height: 52vh; }
-  :root { --silence-threshold: 26vh; --silence-major: 16vh; --silence-module: 9vh; }
-}/* ============================================
-   archive, project, studio, object, commission
+   /*archive, project, studio, object, commission
    ============================================ */
 
 /* ---------- shared modules ---------- */
@@ -360,7 +356,14 @@ body.awake .menu-glyph, .menu-glyph:hover { opacity: 1; }
 .inquiry-protocol .inquiry-note { font-size: var(--type-trace); color: var(--trace); line-height: 1.8; max-width: 46ch; }
 
 /* ---------- commission ---------- */
-.commission-statement { padding: 180px var(--inset) 0; font-size: clamp(22px, 3.2vw, 40px); line-height: 1.55; max-width: 24ch; }
+.commission-statement {
+  padding: 180px var(--inset) 0;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);   /* ≈19→26px — body-adjacent, quiet */
+  line-height: 1.6;
+  letter-spacing: .01em;
+  max-width: 44ch;
+  color: var(--ink);
+}
 .commission-protocol { display: grid; grid-template-columns: 58% 42%; padding: 0 var(--inset); }
 .commission-protocol p { font-size: var(--type-body); line-height: 1.9; color: var(--ink-soft); max-width: 56ch; }
 .commission-mail { padding: 0 var(--inset); font-size: clamp(22px, 3vw, 34px); }
@@ -383,76 +386,135 @@ body.awake .menu-glyph, .menu-glyph:hover { opacity: 1; }
    6 visible, fixed non-squeezable widths,
    controlled 5-slot advance, project-18 hard stop
    ============================================ */
-.slat-stage {
-  width: 100%;
-  overflow: hidden;            /* hide native scrollbar — visual purity */
+/* ============================================
+   homepage — curated 6-slot kinetic canvas
+   ============================================ */
+.cms-slat-row {
+  display: flex;
+  gap: 24px;
   padding: 0 var(--inset);
   height: 78vh;
 }
-.slat-track {
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  height: 100%;
-  transform: translateX(0);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
-}
 .slat {
-  /* fixed width: exactly 6 across the inset viewport, gaps accounted for */
-  flex: 0 0 calc((100% - (5 * 24px)) / 6);
+  flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  transition: flex-basis 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: flex-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .slat-plate {
-  flex: 1;
-  background: var(--plate);
+  flex: 1; background: var(--plate);
   display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-  transition: opacity 0.3s ease;
+  overflow: hidden; transition: opacity .3s ease;
 }
-.slat-plate .plate-label {
-  font-size: var(--type-trace); letter-spacing: .12em; color: var(--trace); white-space: nowrap;
-}
-.slat-trace {
-  font-size: var(--type-trace); color: var(--ink); padding-top: 12px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+.slat-plate .plate-label { font-size: var(--type-trace); letter-spacing: .12em; color: var(--trace); white-space: nowrap; }
+.slat-trace { font-size: var(--type-trace); color: var(--ink); padding-top: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .slat-trace span { color: var(--trace); margin-left: 8px; }
 
-/* hover expansion — left edge holds, expands right toward a square */
-.slat:hover .slat-plate { opacity: 0.92; }
-.slat.expanded {
-  flex-basis: calc(((100% - (5 * 24px)) / 6) * 2.4);  /* ~square dominant */
-}
+.cms-slat-row:hover .slat { flex-grow: 0.55; }
+.cms-slat-row .slat:hover { flex-grow: 4.5; }   /* expands right toward square; left edge holds in flow */
+.slat:hover .slat-plate { opacity: .92; }
 
-@media (hover: none) {
-  .slat.expanded { flex-basis: calc((100% - (5 * 24px)) / 6); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .slat, .slat-track { transition: none; }
-}
-/* invisible edge zones — the navigation triggers */
-.slat-stage { position: relative; }
-.edge-zone {
-  position: absolute; top: 0; bottom: 0; width: 56px; z-index: 5;
-}
-.edge-zone.left  { left: 0; }
-.edge-zone.right { right: 0; }
-
-/* touch devices (tablet landscape etc.): native swipe instead of hover engine */
-@media (hover: none) and (min-width: 761px) {
-  .slat-stage { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .slat-track { transform: none !important; }
-  .edge-zone { display: none; }
-}
-/* mobile — the rail can't work on a phone; stack to a column */
+@media (hover: none) { .cms-slat-row:hover .slat, .cms-slat-row .slat:hover { flex-grow: 1; } }
+@media (prefers-reduced-motion: reduce) { .slat { transition: none; } }
 @media (max-width: 760px) {
-  .slat-stage { overflow: visible; height: auto; }
-  .slat-track { flex-direction: column; gap: 16px; transform: none !important; }
+  .cms-slat-row { flex-direction: column; height: auto; gap: 16px; }
   .slat { flex: none; height: 38vh; }
+}
+/* ============================================
+   homepage — curated 6-slot kinetic canvas
+   ============================================ */
+.cms-slat-row {
+  display: flex;
+  gap: 24px;
+  padding: 0 var(--inset);
+  height: 78vh;
+}
+.slat {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  transition: flex-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slat-plate {
+  flex: 1; background: var(--plate);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; transition: opacity .3s ease;
+}
+.slat-plate .plate-label { font-size: var(--type-trace); letter-spacing: .12em; color: var(--trace); white-space: nowrap; }
+.slat-trace { font-size: var(--type-trace); color: var(--ink); padding-top: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slat-trace span { color: var(--trace); margin-left: 8px; }
+
+.cms-slat-row:hover .slat { flex-grow: 0.55; }
+.cms-slat-row .slat:hover { flex-grow: 4.5; }   /* expands right toward square; left edge holds in flow */
+.slat:hover .slat-plate { opacity: .92; }
+
+@media (hover: none) { .cms-slat-row:hover .slat, .cms-slat-row .slat:hover { flex-grow: 1; } }
+@media (prefers-reduced-motion: reduce) { .slat { transition: none; } }
+@media (max-width: 760px) {
+  .cms-slat-row { flex-direction: column; height: auto; gap: 16px; }
+  .slat { flex: none; height: 38vh; }
+}
+/* ============================================
+   projects — sovereign master grid
+   ============================================ */
+.projects-head { padding-top: 120px; }
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  padding: 0;          /* the wall runs to the screen edge */
+}
+
+.project-card { display: block; }
+
+.image-wrapper {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--plate);
+}
+
+.project-thumbnail,
+.image-wrapper .plate-label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.project-thumbnail {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.image-wrapper .plate-label {
+  font-size: var(--type-trace); letter-spacing: .12em; color: var(--trace);
+}
+
+.image-wrapper::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 38%);
+  opacity: 0; transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.metadata-overlay {
+  position: absolute; bottom: 24px; left: 24px; z-index: 2;
+  opacity: 0; transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.project-meta-text {
+  font-size: clamp(0.85rem, 1.2vw, 1.05rem);   /* ≈14→17px */
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  text-transform: lowercase;
+}
+
+.project-card:hover .project-thumbnail { transform: scale(1.04); }
+.project-card:hover .image-wrapper::after,
+.project-card:hover .metadata-overlay { opacity: 1; }
+
+@media (max-width: 1024px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) {
+  .projects-grid { grid-template-columns: 1fr; }
+  .metadata-overlay, .image-wrapper::after { opacity: 1; }  /* touch: meta visible */
 }
 /* ============================================================
    GLOBAL RESPONSIVE FRAMEWORK — single source of truth

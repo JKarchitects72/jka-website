@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import { featured, projectHref } from "../data/projects";
 ---
 <Base>
   <main>
@@ -18,34 +19,19 @@ import Base from "../layouts/Base.astro";
 
     <div class="silence-major"></div>
 
-<section class="slat-stage settle">
-      <div class="edge-zone left" id="edgeLeft" aria-hidden="true"></div>
-      <div class="edge-zone right" id="edgeRight" aria-hidden="true"></div>
-      <div class="slat-track" id="slatTrack">
-        <a class="slat" href="/projects/villa-hariss"><div class="slat-plate"><span class="plate-label">[ villa hariss ]</span></div><div class="slat-trace">villa hariss <span>2019</span></div></a>
-        <a class="slat" href="/projects/villa-koura"><div class="slat-plate"><span class="plate-label">[ villa koura ]</span></div><div class="slat-trace">villa koura <span>2017</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ ekp ]</span></div><div class="slat-trace">elkhoury &amp; partners <span>2020</span></div></a>
-        <a class="slat" href="/object"><div class="slat-plate"><span class="plate-label">[ kumo ]</span></div><div class="slat-trace">kumo <span>2018</span></div></a>
-        <a class="slat" href="/object"><div class="slat-plate"><span class="plate-label">[ kozo ]</span></div><div class="slat-trace">kozo <span>2017</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ zuhair murad ]</span></div><div class="slat-trace">zuhair murad <span>2016</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 07 ]</span></div><div class="slat-trace">private residence a&amp;h <span>2021</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 08 ]</span></div><div class="slat-trace">residence 3038 <span>2019</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 09 ]</span></div><div class="slat-trace">arborizon <span>2018</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 10 ]</span></div><div class="slat-trace">villa riyadh <span>2022</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 11 ]</span></div><div class="slat-trace">carlton residence <span>2019</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 12 ]</span></div><div class="slat-trace">mountain escape <span>2017</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 13 ]</span></div><div class="slat-trace">loft 09 <span>2016</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 14 ]</span></div><div class="slat-trace">asmarwood <span>2015</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 15 ]</span></div><div class="slat-trace">daher residence <span>2008</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 16 ]</span></div><div class="slat-trace">jeans couture <span>2004</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 17 ]</span></div><div class="slat-trace">youssef salameh <span>2002</span></div></a>
-        <a class="slat" href="/archive"><div class="slat-plate"><span class="plate-label">[ project 18 ]</span></div><div class="slat-trace">private residence <span>2000</span></div></a>
-      </div>
+<section class="cms-slat-row settle">
+      {featured.map((p) => (
+        <a class="slat" href={projectHref(p)}>
+          <div class="slat-plate"><span class="plate-label">[ {p.name} ]</span></div>
+          <div class="slat-trace">{p.name} {p.year && <span>{p.year}</span>}</div>
+        </a>
+      ))}
     </section>
 
     <div class="silence-module"></div>
 
-    <a class="enter-line settle" href="/archive">enter the spatial archive &nbsp;→</a>
+    <a class="enter-line settle" href="/projects">view all projects &nbsp;→</a>
+    <a class="commission-line" href="/archive"><span>earlier work, 1998–2010</span><span>→</span></a>
     <a class="commission-line" href="/commission"><span>commission an enquiry</span><span>→</span></a>
 
     <footer class="site-footer">
@@ -67,55 +53,5 @@ import Base from "../layouts/Base.astro";
     <span class="trace copyright">© jka — beirut, est. 1998</span>
   </footer>
   </main>
-  <script>
-  const track = document.getElementById('slatTrack');
-  const edgeL = document.getElementById('edgeLeft');
-  const edgeR = document.getElementById('edgeRight');
-
-  if (track && edgeL && edgeR) {
-    const slats = Array.from(track.querySelectorAll('.slat'));
-    const VISIBLE = 6, STEP = 5, COOLDOWN = 750;
-    let frameStart = 0;
-    let locked = false;
-
-    function slotWidth() {
-      const gap = 24;
-      return (track.parentElement.clientWidth - (VISIBLE - 1) * gap) / VISIBLE + gap;
-    }
-    function maxStart() { return Math.max(0, slats.length - VISIBLE); }
-
-    function shiftTo(start) {
-      frameStart = Math.min(Math.max(0, start), maxStart());
-      track.style.transform = `translateX(${-frameStart * slotWidth()}px)`;
-    }
-
-    function move(direction) {            // +1 forward, -1 backward
-      if (locked) return;
-      locked = true;
-
-      if (direction > 0) {
-        frameStart >= maxStart() ? shiftTo(0)                    // 18 → wrap home to 1
-                                 : shiftTo(frameStart + STEP);   // advance 5
-      } else {
-        frameStart <= 0 ? shiftTo(maxStart())                    // 1 → wrap to the end (… 18)
-                        : shiftTo(frameStart - STEP);            // retreat 5
-      }
-      setTimeout(() => { locked = false; }, COOLDOWN);
-    }
-
-    edgeR.addEventListener('mouseenter', () => move(1));
-    edgeL.addEventListener('mouseenter', () => move(-1));
-
-    /* slat hover = expansion only — every project stays clickable */
-    slats.forEach((slat) => {
-      slat.addEventListener('mouseenter', () => {
-        slats.forEach(s => s.classList.remove('expanded'));
-        slat.classList.add('expanded');
-      });
-      slat.addEventListener('mouseleave', () => slat.classList.remove('expanded'));
-    });
-
-    window.addEventListener('resize', () => shiftTo(frameStart));
-  }
-</script>
+  
 </Base>

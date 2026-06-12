@@ -1,14 +1,13 @@
 ---
-import Base from "../layouts/Base.astro";
-import { archiveOnlyGrid } from "../data/projects";
+import Base from "../../layouts/Base.astro";
+import { allForGrid, projectHref } from "../../data/projects";
 ---
-<Base title="earlier work — jihad khairallah architects"
-      description="the historical archive of jka — projects from the practice's founding era, beirut, 1998–2010.">
+<Base title="projects — jihad khairallah architects"
+      description="the complete body of work — residential, workplace, retail, and conceptual projects by jka, beirut, since 1998.">
   <div class="projects-head"></div>
-  <div class="cms-era-threshold" style="margin-top:0">earlier work — 1998–2010</div>
   <section class="projects-grid settle">
-    {archiveOnlyGrid.map((p) => (
-      <a class="project-card" href="/projects" aria-label={p.name}>
+    {allForGrid.map((p) => (
+      <a class="project-card" href={projectHref(p)} aria-label={p.name}>
         <div class="image-wrapper">
           <span class="plate-label">[ {p.name} ]</span>
           <div class="metadata-overlay">
@@ -19,7 +18,7 @@ import { archiveOnlyGrid } from "../data/projects";
     ))}
   </section>
   <div class="silence-module"></div>
-  <a class="commission-line" href="/projects"><span>view all projects</span><span>→</span></a>
+  <a class="commission-line" href="/commission"><span>commission an enquiry</span><span>→</span></a>
   <footer class="site-footer">
     <a class="brand-logo-link" href="/" aria-label="jka — home">
       <img src="/jka-monogram.png" alt="jka" class="brand-logo footer" />
