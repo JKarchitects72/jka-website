@@ -12,6 +12,7 @@
   --inset: clamp(20px, 5vw, 72px);
 
   --white: #ffffff;
+  --surface: #e6e6e6;        /* neutral light grey — global page canvas */
   --ink: #111111;
   --ink-soft: #555555;
   --trace: #9a9a9a;
@@ -31,7 +32,7 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Questrial', sans-serif;
-  background: var(--white);
+  background: var(--surface);
   color: var(--ink);
   text-transform: lowercase;
   -webkit-font-smoothing: antialiased;
@@ -112,6 +113,11 @@ body.awake .menu-glyph, .menu-glyph:hover { opacity: 1; }
 .cms-plate {
   width: 100%; height: 100vh; position: relative; background: var(--plate);
   display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.cms-plate img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
 }
 .cms-plate .plate-label {
   font-size: var(--type-trace); letter-spacing: .12em; color: var(--trace);
@@ -639,4 +645,39 @@ body.awake .menu-glyph, .menu-glyph:hover { opacity: 1; }
 footer.site-footer img.brand-logo {
   height: 18px !important;
   width: auto !important;
+}
+/* ============================================================
+   UNIVERSAL MONOCHROME THUMBNAIL SYSTEM
+   every navigational thumbnail renders as a uniform grey
+   facade; full colour is drawn out on hover over the signature
+   0.6s curve (the curve itself rides inside each component's
+   own scoped transition, alongside its frame-zoom).
+   deliberately exempt: the hero film, nav/footer chrome, the
+   studio portrait, and the full-resolution .lb-img lightbox.
+   ============================================================ */
+.project-thumbnail,
+.slat-thumb,
+.po-img,
+.news-img,
+.gallery-cell img,
+.related-tile img {
+  filter: grayscale(100%);
+}
+.project-card:hover .project-thumbnail,
+.slat:hover .slat-thumb,
+.po-cell:hover .po-img,
+.news-card:hover .news-img,
+.gallery-cell[data-src]:hover img,
+.related-tile:hover img {
+  filter: grayscale(0%);
+}
+/* touch devices have no hover — present every asset in full colour */
+@media (hover: none) {
+  .project-thumbnail, .slat-thumb, .po-img,
+  .news-img, .gallery-cell img, .related-tile img { filter: grayscale(0%); }
+}
+/* reduced-motion — keep the reveal, drop the easing */
+@media (prefers-reduced-motion: reduce) {
+  .project-thumbnail, .slat-thumb, .po-img,
+  .news-img, .gallery-cell img, .related-tile img { transition: none; }
 }

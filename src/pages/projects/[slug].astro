@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { publishedProjects } from "../../data/projects";
+import { publishedProjects, projects } from "../../data/projects";
+import type { Project } from "../../data/projects";
 
 export async function getStaticPaths() {
   return publishedProjects.map((p) => ({
@@ -10,13 +11,25 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
-const idx = publishedProjects.findIndex((p) => p.slug === project.slug);
-const next = publishedProjects[(idx + 1) % publishedProjects.length];
-const meta = [project.typology, project.location, project.year, project.area]
-  .filter(Boolean).join(" — ");
+
+// related — exactly 4. rank by same-typology, then linkable (published + slug); fill from the rest of the inventory.
+const rank = (p: Project) => {
+  let s = 0;
+  if (p.typology === project.typology) s += 2;
+  if (p.published && p.slug) s += 1;
+  return s;
+};
+const related = projects
+  .filter((p) => p.slug !== project.slug)
+  .sort((a, b) => rank(b) - rank(a))
+  .slice(0, 4);
+
+const hrefFor = (p: Project) => (p.published && p.slug ? `/projects/${p.slug}` : "/projects");
+const thumbFor = (p: Project) => p.photos?.find((ph) => ph.src)?.src ?? null;
+const photos = project.photos ?? [];
+const titleLine = [project.name, project.location, project.year].filter(Boolean).join(", ");
 ---
-<Base title={`${project.name} — jka`}
-      description={project.narrative?.slice(0, 150)}>
+<Base title={`${project.name} — jka`} description={project.narrative?.slice(0, 150)}>
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "CreativeWork",
@@ -28,74 +41,52 @@ const meta = [project.typology, project.location, project.year, project.area]
     "about": project.narrative,
   })} />
 
-  <section class="cms-project-hero">
-    <span class="hero-media-note">{project.heroNote}</span>
-    <div class="hero-title-block">
-      <h1 class="project-title">{project.name}</h1>
-      <p class="project-meta">{meta}</p>
-    </div>
+  <!-- 1 — the hero stage (global nav floats transparently over this, scoped on project pages) -->
+  <section class="project-hero">
+    {project.heroImage
+      ? <img src={project.heroImage} alt={`${project.name} — hero`} />
+      : <span class="plate-label">[ hero photo ]</span>}
   </section>
-  <div class="silence-module"></div>
 
-  {project.narrative && (
-    <section class="cms-narrative settle">
-      <p class="narrative-text">{project.narrative}</p>
-      <div></div>
+  <!-- 2 — centred title + narrative -->
+  <section class="record-datum">
+    <h1 class="project-title">{titleLine}</h1>
+    {project.narrative && <p class="project-narrative">{project.narrative}</p>}
+  </section>
+
+  <!-- 3 — centred two-column zero-gap matrix (centre 50vw) -->
+  <div class="record-gallery">
+    {photos.map((ph, i) => (
+      ph.src ? (
+        <button type="button" class="gallery-cell" data-src={ph.src} data-caption={ph.caption ?? ""} aria-label={ph.caption ?? "view photograph"}>
+          <img src={ph.src} alt={ph.caption ?? `${project.name} photograph ${i + 1}`} loading="lazy" />
+        </button>
+      ) : (
+        <figure class="gallery-cell placeholder">
+          <span class="plate-label">[ {ph.caption ?? `photo ${i + 1}`} ]</span>
+        </figure>
+      )
+    ))}
+  </div>
+
+  <!-- 4 — related projects horizon -->
+  {related.length > 0 && (
+    <section class="record-related">
+      <span class="record-eyebrow">related projects</span>
+      <div class="related-grid">
+        {related.map((p) => (
+          <a class="related-tile" href={hrefFor(p)} aria-label={`${p.name}, ${p.year}`}>
+            {thumbFor(p)
+              ? <img src={thumbFor(p)} alt={p.name} loading="lazy" />
+              : <span class="plate-label">[ {p.name} ]</span>}
+            <span class="related-overlay">{p.name}, {p.year}</span>
+          </a>
+        ))}
+      </div>
     </section>
   )}
-  <div class="silence-module"></div>
 
-  {project.media?.map((m, i) => (
-    <>
-      {m.kind === "plate" ? (
-        <section class="cms-plate short settle"><span class="plate-label">{m.labels[0]}</span></section>
-      ) : (
-        <section class="cms-diptych-row settle">
-          <div class="cms-plate"><span class="plate-label">{m.labels[0]}</span></div>
-          <div class="cms-plate"><span class="plate-label">{m.labels[1]}</span></div>
-        </section>
-      )}
-      {i < project.media.length - 1 && <div style="height:2px"></div>}
-    </>
-  ))}
-
-  {project.materials && (
-    <>
-      <div class="silence-module"></div>
-      <section class="cms-material-strip settle">
-        {project.materials.map((mat) => (
-          <figure>
-            <div class="material-crop"><span class="plate-label">[ crop ]</span></div>
-            <figcaption>{mat}</figcaption>
-          </figure>
-        ))}
-      </section>
-    </>
-  )}
-
-  {project.objectName && (
-    <>
-      <div class="silence-module"></div>
-      <section class="cms-object-datum settle">
-        <div>
-          <span class="eyebrow">object</span>
-          <div class="object-name">{project.objectName}</div>
-          <a class="object-link" href="/object">{project.objectLink}</a>
-        </div>
-        <div class="object-plate"><span class="plate-label">{project.objectPlate}</span></div>
-      </section>
-    </>
-  )}
-
-  {project.closingPlate && (
-    <>
-      <div class="silence-module"></div>
-      <section class="cms-plate short settle"><span class="plate-label">{project.closingPlate}</span></section>
-    </>
-  )}
-
-  <a class="cms-terminus" href={`/projects/${next.slug}`}><span>next — {next.name}</span><span>→</span></a>
-  <a class="commission-line" href="/commission"><span>commission an enquiry</span><span>→</span></a>
+  <!-- 5 — the studio terminus -->
   <footer class="site-footer">
     <a class="brand-logo-link" href="/" aria-label="jka — home">
       <img src="/jka-monogram.png" alt="jka" class="brand-logo footer" />
@@ -106,6 +97,193 @@ const meta = [project.typology, project.location, project.year, project.area]
       <a href="https://facebook.com/jihadkhairallaharchitects" target="_blank" rel="noopener noreferrer" aria-label="facebook"><img src="/icon-facebook.png" alt="" class="social-icon" /></a>
       <a href="https://linkedin.com/in/jihadkhairallah" target="_blank" rel="noopener noreferrer" aria-label="linkedin"><img src="/icon-linkedin.png" alt="" class="social-icon" /></a>
     </nav>
-    <span class="trace copyright">© jka — beirut, est. 1998</span>
+    <span class="trace copyright">&copy; 1998-<span class="year">{new Date().getFullYear()}</span> by jihad khairallah architects</span>
   </footer>
+
+  <!-- the full frame — native-resolution lightbox -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="photo gallery">
+    <button type="button" class="lb-close" aria-label="close">close</button>
+    <button type="button" class="lb-prev" aria-label="previous">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12 15 19" /></svg>
+    </button>
+    <img class="lb-img" src="" alt="" />
+    <button type="button" class="lb-next" aria-label="next">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5 16 12 9 19" /></svg>
+    </button>
+    <span class="lb-caption"></span>
+  </div>
+
+  <style>
+    /* ===== project record — scoped to this page only ===== */
+
+    /* nav overlay — scoped to project pages via :global; bundled into this page's stylesheet */
+    :global(.site-chrome) { position: absolute; background: transparent; z-index: 10; top: 0; left: 0; width: 100%; }
+
+    /* 1 — hero stage */
+    .project-hero {
+      width: 100%;                 /* full-bleed; 100% avoids the 100vw scrollbar overflow */
+      height: 100vh;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      background: var(--plate);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .project-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .project-hero .plate-label { font-size: var(--type-trace); letter-spacing: 0.12em; color: var(--trace); }
+
+    /* 2 — centred title + narrative */
+    .record-datum {
+      max-width: 640px; margin: 0 auto;
+      padding: clamp(56px, 10vh, 120px) var(--inset);
+      text-align: center;
+    }
+    .project-title {
+      font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      margin: 0 0 22px;
+    }
+    .project-narrative {
+      font-size: clamp(0.9rem, 1.2vw, 1rem);
+      font-weight: 300;
+      line-height: 1.95;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    /* 3 — centred matrix: centre 50vw, two columns, zero gap */
+    .record-gallery {
+      max-width: 50vw;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0; padding: 0;
+    }
+    .gallery-cell {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: var(--surface);
+      margin: 0; padding: 0; border: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gallery-cell[data-src] { cursor: pointer; }
+    .gallery-cell img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover;
+      transition: filter 0.6s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .gallery-cell[data-src]:hover img { transform: scale(1.04); }
+    .gallery-cell .plate-label { font-size: var(--type-trace); letter-spacing: 0.12em; color: var(--trace); text-align: center; padding: 0 12px; }
+
+    /* 4 — related horizon: one row of four */
+    .record-related { padding: var(--silence-module) var(--inset); }
+    .record-eyebrow { font-size: var(--type-trace); letter-spacing: 0.14em; color: var(--trace); }
+    .record-related .record-eyebrow { display: block; margin-bottom: 18px; }
+    .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .related-tile {
+      position: relative; aspect-ratio: 4 / 3; overflow: hidden;
+      background: var(--plate); display: flex; align-items: center; justify-content: center;
+    }
+    .related-tile img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      transition: filter 0.6s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .related-tile:hover img { transform: scale(1.04); }
+    .related-tile .plate-label { font-size: var(--type-trace); letter-spacing: 0.12em; color: var(--trace); text-align: center; padding: 0 12px; }
+    .related-tile::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.32), rgba(0,0,0,0) 45%);
+      opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+    }
+    .related-tile:hover::after { opacity: 1; }
+    .related-overlay {
+      position: absolute; left: 16px; bottom: 14px; z-index: 2;
+      color: #fff; font-size: var(--type-trace); letter-spacing: 0.04em;
+      opacity: 0; transition: opacity 0.5s ease;
+    }
+    .related-tile:hover .related-overlay { opacity: 1; }
+
+    /* the full frame — native-resolution lightbox */
+    .lightbox {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100;
+      display: none; align-items: center; justify-content: center;
+      background: var(--surface);
+    }
+    .lightbox.open { display: flex; }
+    .lightbox .lb-img { max-width: min(1200px, 92vw); max-height: min(800px, 86vh); object-fit: contain; display: block; }
+    .lightbox button {
+      position: absolute; background: none; border: 0; cursor: pointer;
+      color: var(--ink); z-index: 2; transition: color 0.3s ease;
+    }
+    .lightbox button:hover { color: var(--ink); }
+    .lb-close { top: 22px; right: var(--inset); font-size: var(--type-trace); letter-spacing: 0.12em; padding: 12px; }
+    .lb-prev, .lb-next { top: 50%; transform: translateY(-50%); padding: 14px; display: flex; align-items: center; }
+    .lb-prev svg, .lb-next svg { display: block; }
+    .lb-prev { left: clamp(6px, 2vw, 28px); }
+    .lb-next { right: clamp(6px, 2vw, 28px); }
+    .lb-caption {
+      position: absolute; bottom: 22px; left: 0; right: 0; text-align: center;
+      color: var(--ink-soft); font-size: var(--type-trace); letter-spacing: 0.08em;
+    }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      .project-hero { height: 100svh; }
+      .record-gallery { max-width: 100%; }   /* widen the matrix on small screens */
+      .related-grid { grid-template-columns: repeat(2, 1fr); }
+      .lb-prev, .lb-next { padding: 8px; }
+      .lb-prev svg, .lb-next svg { width: 20px; height: 20px; }
+    }
+
+    /* the extended nav floats over the dark hero here — lift the links to light */
+    :global(.global-navigation-header .extended-menu-links a) { color: rgba(255, 255, 255, 0.62); }
+    :global(.global-navigation-header .extended-menu-links a:hover) { color: #ffffff; }
+  </style>
+
+  <script>
+    const lb = document.getElementById("lightbox");
+    if (lb) {
+      const lbImg = lb.querySelector(".lb-img");
+      const lbCap = lb.querySelector(".lb-caption");
+      const cells = Array.from(document.querySelectorAll(".gallery-cell[data-src]"));
+      const items = cells.map((c) => ({
+        src: c.getAttribute("data-src"),
+        caption: c.getAttribute("data-caption") || "",
+      }));
+      let i = 0;
+      const show = (n) => {
+        if (!items.length) return;
+        i = (n + items.length) % items.length;
+        lbImg.src = items[i].src;
+        lbImg.alt = items[i].caption;
+        lbCap.textContent = items[i].caption;
+      };
+      const open = (n) => {
+        show(n);
+        lb.classList.add("open");
+        lb.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      };
+      const close = () => {
+        lb.classList.remove("open");
+        lb.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+        lbImg.src = "";
+      };
+      cells.forEach((c, n) => c.addEventListener("click", () => open(n)));
+      lb.querySelector(".lb-close").addEventListener("click", close);
+      lb.querySelector(".lb-prev").addEventListener("click", (e) => { e.stopPropagation(); show(i - 1); });
+      lb.querySelector(".lb-next").addEventListener("click", (e) => { e.stopPropagation(); show(i + 1); });
+      lb.addEventListener("click", (e) => { if (e.target === lb) close(); });
+      document.addEventListener("keydown", (e) => {
+        if (!lb.classList.contains("open")) return;
+        if (e.key === "Escape") close();
+        if (e.key === "ArrowLeft") show(i - 1);
+        if (e.key === "ArrowRight") show(i + 1);
+      });
+    }
+  </script>
 </Base>

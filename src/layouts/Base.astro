@@ -1,4 +1,5 @@
 ---
+import "../styles/global.css";
 const { title = "jihad khairallah architects." } = Astro.props;
 ---
 <!DOCTYPE html>
@@ -9,7 +10,6 @@ const { title = "jihad khairallah architects." } = Astro.props;
   <title>{title}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet" />
-  <style is:global>@import "../styles/global.css";</style>
   <script type="application/ld+json" set:html={JSON.stringify({
   "@context": "https://schema.org",
   "@type": ["ProfessionalService", "ArchitecturalService"],
@@ -31,56 +31,79 @@ const { title = "jihad khairallah architects." } = Astro.props;
   "knowsAbout": ["residential architecture", "interior architecture", "bespoke furniture design"]
 }) } />
 </head>
-<body>
+<body style="background-color: #e6e6e6;">
 
-  <header class="site-chrome">
-    <a class="brand-logo-link" href="/" aria-label="jka — home">
-      <img src="/jka-monogram.png" alt="jka" class="brand-logo" />
-    </a>
-    <button class="menu-glyph" id="menuGlyph" aria-label="open menu"><span></span><span></span></button>
-  </header>
-
-  <div class="menu-overlay" id="menuOverlay">
-    <button class="menu-close" id="menuClose">close</button>
-    <ul class="menu-list">
-      <li><a href="/projects">projects</a></li>
-      <li><a href="/object">object &amp; product</a></li>
-      <li><a href="/studio">the studio</a></li>
-      <li><a href="/commission">inquiries</a></li>
-    </ul>
-  </div>
-
-  <div class="threshold-veil" id="veil"></div>
+  <nav class="global-navigation-header">
+    <div class="logo-container">
+      <a class="brand-logo-link" href="/" aria-label="jka — home">
+        <img src="/jka-monogram.png" alt="jka" class="brand-logo" />
+      </a>
+    </div>
+    <div class="extended-menu-links">
+      <a href="/projects">projects</a>
+      <a href="/news">news</a>
+      <a href="/products">products</a>
+      <a href="/studio">studio</a>
+      <a href="/inquiries">inquiries</a>
+    </div>
+  </nav>
 
   <slot />
 
+  <style>
+    /* ===== global navigation — permanently extended, no drawer ===== */
+    .global-navigation-header {
+      position: absolute; top: 0; left: 0; width: 100%;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 32px 40px; box-sizing: border-box;
+      z-index: 100; background: transparent;
+      pointer-events: none;                 /* transparent gaps don't block content beneath */
+    }
+    .global-navigation-header a { pointer-events: auto; }
+
+    .logo-container { display: flex; align-items: center; }
+    .logo-container .brand-logo { display: block; height: clamp(26px, 3vw, 36px); width: auto; }
+
+    .extended-menu-links { display: flex; align-items: center; gap: 32px; }
+    .extended-menu-links a {
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      font-weight: 300; letter-spacing: 0.06em; text-transform: lowercase;
+      color: var(--trace);                  /* muted monochrome gray — reads on light grounds */
+      text-decoration: none;
+      transition: color 0.4s ease, opacity 0.4s ease;
+    }
+    .extended-menu-links a:hover { color: var(--ink); }
+
+    /* mobile — words wrap / scale down, never hide behind a symbol */
+    @media (max-width: 680px) {
+      .global-navigation-header { padding: 22px 24px; }
+      .extended-menu-links { gap: 18px; }
+      .extended-menu-links a { font-size: 0.82rem; letter-spacing: 0.04em; }
+    }
+    @media (max-width: 460px) {
+      .global-navigation-header { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px 20px; }
+      .extended-menu-links { gap: 16px 18px; flex-wrap: wrap; }
+    }
+  </style>
+
   <script>
+    // footer copyright year — always the live calendar year, no rebuild needed
+    document.querySelectorAll('.year').forEach((el) => { el.textContent = String(new Date().getFullYear()); });
+
     // the interface wake
     const wake = () => document.body.classList.add('awake');
     window.addEventListener('mousemove', wake, { once: true });
     window.addEventListener('scroll', wake, { once: true });
     window.addEventListener('touchstart', wake, { once: true });
 
-    // menu
-    const overlay = document.getElementById('menuOverlay');
-    document.getElementById('menuGlyph')?.addEventListener('click', () => overlay?.classList.add('open'));
-    document.getElementById('menuClose')?.addEventListener('click', () => overlay?.classList.remove('open'));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay?.classList.remove('open'); });
-
-    // the white interstitial — crossing between pages
-    const veil = document.getElementById('veil');
-    document.addEventListener('click', (e) => {
-      const link = (e.target as Element).closest('a[href^="/"]');
-      if (!link) return;
-      e.preventDefault();
-      veil?.classList.add('crossing');
-      setTimeout(() => { window.location.href = (link as HTMLAnchorElement).href; }, 300);
-    });
-
-    // the quiet settle
-   const observer = new IntersectionObserver((entries) => {
+    // the quiet settle — content reveal on scroll
+    const observer = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
         if (en.isIntersecting) { en.target.classList.add('in'); observer.unobserve(en.target); }
       });
     }, { threshold: 0.12 });
     document.querySelectorAll('.settle').forEach((el) => observer.observe(el));
+  </script>
+
+</body>
+</html>

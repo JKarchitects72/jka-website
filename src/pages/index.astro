@@ -1,15 +1,44 @@
 ---
 import Base from "../layouts/Base.astro";
 import { featured, projectHref } from "../data/projects";
+const thumbFor = (p) => p.heroImage ?? p.photos?.find((ph) => ph.src)?.src ?? null;
 ---
 <Base>
   <main>
-    <a href="/projects/villa-hariss" style="display:block;">
+    <a href="/projects/villa-hariss" id="hero-link" style="display:block;">
       <section class="cms-plate">
-        <span class="plate-label">[ hero — villa hariss video loop · clicking enters the project ]</span>
+        <div class="hero-video">
+          <iframe
+            id="hero-frame"
+            title="jka hero film"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <noscript>
+            <iframe
+              src="https://player.vimeo.com/video/1189747257?background=1&dnt=1"
+              title="villa hariss"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </noscript>
+        </div>
         <div class="hero-name">jihad khairallah architects.</div>
       </section>
     </a>
+    <script is:inline>
+      (function () {
+        var films = [
+          { id: "1189747257", href: "/projects/villa-hariss" }, /* villa hariss */
+          { id: "1201151145", href: "/projects/loft-09" }       /* loft 09 */
+        ];
+        var pick = films[Math.floor(Math.random() * films.length)];
+        var frame = document.getElementById("hero-frame");
+        var link = document.getElementById("hero-link");
+        if (frame) frame.src = "https://player.vimeo.com/video/" + pick.id + "?background=1&dnt=1";
+        if (link) link.setAttribute("href", pick.href);
+      })();
+    </script>
 
     <div class="silence-threshold"></div>
 
@@ -22,7 +51,11 @@ import { featured, projectHref } from "../data/projects";
 <section class="cms-slat-row settle">
       {featured.map((p) => (
         <a class="slat" href={projectHref(p)}>
-          <div class="slat-plate"><span class="plate-label">[ {p.name} ]</span></div>
+          <div class="slat-plate">
+            {thumbFor(p)
+              ? <img class="slat-thumb" src={thumbFor(p)} alt={p.name} loading="lazy" />
+              : <span class="plate-label">[ {p.name} ]</span>}
+          </div>
           <div class="slat-trace">{p.name} {p.year && <span>{p.year}</span>}</div>
         </a>
       ))}
@@ -32,7 +65,7 @@ import { featured, projectHref } from "../data/projects";
 
     <a class="enter-line settle" href="/projects">view all projects &nbsp;→</a>
     <a class="commission-line" href="/archive"><span>earlier work</span><span>→</span></a>
-    <a class="commission-line" href="/commission"><span>commission an enquiry</span><span>→</span></a>
+    <a class="commission-line" href="/inquiries"><span>commission an enquiry</span><span>→</span></a>
 
     <footer class="site-footer">
     <a class="brand-logo-link" href="/" aria-label="jka — home">
@@ -50,8 +83,39 @@ import { featured, projectHref } from "../data/projects";
         <img src="/icon-linkedin.png" alt="" class="social-icon" />
       </a>
     </nav>
-    <span class="trace copyright">© jka — beirut, est. 1998</span>
+    <span class="trace copyright">&copy; 1998-<span class="year">{new Date().getFullYear()}</span> by jihad khairallah architects</span>
   </footer>
   </main>
   
+  <style>
+    .slat-plate { position: relative; }
+    .slat-thumb {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover;
+      transition: filter 0.6s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slat:hover .slat-thumb { transform: scale(1.04); }
+
+    /* landing hero film — full-bleed background loop */
+    .hero-video { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
+    .hero-video iframe {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 100vw; height: 56.25vw;            /* 16:9 from width */
+      min-height: 100vh; min-width: 177.78vh;   /* 16:9 from height — guarantees cover */
+      border: 0; pointer-events: none;          /* clicks pass through to the project link */
+    }
+    .hero-name { z-index: 1; }
+
+    /* statement — centred, held to a single line */
+    .silence-threshold { height: clamp(24px, 5vh, 56px); }   /* tighten the gap under the hero */
+    .statement-block { text-align: center; }
+    .statement-block .manifesto {
+      max-width: none; margin: 0 auto;
+      white-space: nowrap; text-align: center;
+      font-size: clamp(13px, 1.7vw, 24px);
+    }
+    @media (max-width: 640px) {
+      .statement-block .manifesto { white-space: normal; max-width: 30ch; }
+    }
+  </style>
 </Base>

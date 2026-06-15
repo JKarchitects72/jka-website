@@ -1,23 +1,28 @@
 ---
 import Base from "../layouts/Base.astro";
-import { archiveOnlyGrid } from "../data/projects";
+import { archiveProjects } from "../data/archive";
+const thumbFor = (p) => p.heroImage ?? p.photos?.[0] ?? null;
 ---
 <Base title="earlier work — jihad khairallah architects"
-      description="the historical archive of jka — projects from the practice's founding era, beirut, 1998–2010.">
+      description="the historical archive of jka — commercial and residential work from the practice's founding era, beirut.">
   <div class="projects-head"></div>
   <div class="cms-era-threshold" style="margin-top:0">earlier work</div>
+  <div class="projects-grid-wrap">
   <section class="projects-grid settle">
-    {archiveOnlyGrid.map((p) => (
-      <a class="project-card" href="/projects" aria-label={p.name}>
+    {archiveProjects.map((p) => (
+      <div class="project-card">
         <div class="image-wrapper">
-          <span class="plate-label">[ {p.name} ]</span>
-          <div class="metadata-overlay">
-            <span class="project-meta-text">{p.name}{p.year && `, ${p.year}`}</span>
-          </div>
+          {thumbFor(p)
+            ? <img class="project-thumbnail" src={thumbFor(p)} alt={p.name} loading="lazy" />
+            : <span class="plate-label">[ {p.name} ]</span>}
         </div>
-      </a>
+        <div class="caption-reveal">
+          <span class="project-meta-text">{[p.name, p.location, p.year].filter(Boolean).join(", ")}</span>
+        </div>
+      </div>
     ))}
   </section>
+  </div>
   <div class="silence-module"></div>
   <a class="commission-line" href="/projects"><span>view all projects</span><span>→</span></a>
   <footer class="site-footer">
@@ -30,6 +35,77 @@ import { archiveOnlyGrid } from "../data/projects";
       <a href="https://facebook.com/jihadkhairallaharchitects" target="_blank" rel="noopener noreferrer" aria-label="facebook"><img src="/icon-facebook.png" alt="" class="social-icon" /></a>
       <a href="https://linkedin.com/in/jihadkhairallah" target="_blank" rel="noopener noreferrer" aria-label="linkedin"><img src="/icon-linkedin.png" alt="" class="social-icon" /></a>
     </nav>
-    <span class="trace copyright">© jka — beirut, est. 1998</span>
+    <span class="trace copyright">&copy; 1998-<span class="year">{new Date().getFullYear()}</span> by jihad khairallah architects</span>
   </footer>
 </Base>
+
+<style>
+  /* archive — mirrors the projects archive grid exactly.
+     gap = half a thumbnail, held at every width via container-query units:
+     with N columns and gap = padding = cell/2, cell = 2W/(3N+1), so gap = W/(3N+1).
+     N=3 -> 10cqw,  N=2 -> ~14.29cqw. */
+  .projects-grid-wrap { container-type: inline-size; }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10cqw;        /* inner gutters = half a cell */
+    padding: 10cqw;    /* outer gutters = half a cell */
+  }
+
+  /* card is the positioned frame; the caption floats beneath it into the gutter */
+  .project-card { position: relative; }
+
+  /* perfect square cells; image cover-crops centered, hover zoom stays frame-masked */
+  .image-wrapper { aspect-ratio: 1 / 1; }
+  .image-wrapper::after { content: none; }   /* drop the old hover scrim */
+
+  /* monochrome facade by default; full colour on hover, weightless 0.6s filter curve
+     riding alongside the inner-frame zoom */
+  .project-thumbnail {
+    filter: grayscale(100%);
+    transition: filter 0.6s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .project-card:hover .project-thumbnail { filter: grayscale(0%); }
+
+  /* metadata hidden, then scrolls down from behind the frame's lower edge.
+     absolutely positioned + clipped, so it never reflows the grid */
+  .caption-reveal {
+    position: absolute;
+    top: calc(100% + 10px);   /* tucked just beneath the square */
+    left: 0;
+    width: 100%;
+    overflow: hidden;          /* the boundary mask the text emerges from */
+    pointer-events: none;
+  }
+  .project-meta-text {
+    display: block;
+    max-width: 50%;            /* never wider than half the card; long names stack */
+    color: var(--ink);
+    text-align: left;
+    overflow-wrap: break-word;
+    transform: translateY(-110%);   /* clipped, tucked up behind the frame */
+    opacity: 0;
+    transition: transform 0.6s ease, opacity 0.6s ease;
+  }
+  .project-card:hover .project-meta-text { transform: translateY(0); opacity: 1; }
+
+  /* touch devices have no hover: full colour + a static, readable caption */
+  @media (hover: none) {
+    .project-thumbnail { filter: grayscale(0%); }
+    .caption-reveal { position: static; margin-top: 10px; overflow: visible; }
+    .project-meta-text { transform: none; opacity: 1; max-width: 100%; }
+  }
+
+  /* respect reduced-motion: keep the reveal, drop the animation */
+  @media (prefers-reduced-motion: reduce) {
+    .project-thumbnail, .project-meta-text { transition: none; }
+  }
+
+  @media (max-width: 1024px) {
+    .projects-grid { grid-template-columns: repeat(2, 1fr); gap: 14.2857cqw; padding: 14.2857cqw; }
+  }
+  @media (max-width: 640px) {
+    .projects-grid { grid-template-columns: 1fr; gap: 7cqw; padding: 7cqw; }
+  }
+</style>
