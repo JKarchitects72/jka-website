@@ -6,10 +6,15 @@ const thumbFor = (p) => p.heroImage ?? p.photos?.find((ph) => ph.src)?.src ?? nu
 <Base title="projects — jihad khairallah architects"
       description="the complete body of work — residential, workplace, retail, and conceptual projects by jka, beirut, since 1998.">
   <div class="projects-head"></div>
+  <nav class="projects-filters" aria-label="project disciplines">
+    <button type="button" class:list={["projects-filter", { active: true }]} data-filter="all">all</button>
+    <button type="button" class="projects-filter" data-filter="architecture">architecture</button>
+    <button type="button" class="projects-filter" data-filter="interior architecture">interior architecture</button>
+  </nav>
   <div class="projects-grid-wrap">
   <section class="projects-grid settle">
     {allForGrid.map((p) => (
-      <a class="project-card" href={projectHref(p)} aria-label={p.name}>
+      <a class="project-card" href={projectHref(p)} aria-label={p.name} data-discipline={(p.discipline ?? []).join("|")}>
         <div class="image-wrapper">
           {thumbFor(p)
             ? <img class="project-thumbnail" src={thumbFor(p)} alt={p.name} loading="lazy" />
@@ -36,9 +41,37 @@ const thumbFor = (p) => p.heroImage ?? p.photos?.find((ph) => ph.src)?.src ?? nu
     </nav>
     <span class="trace copyright">&copy; 1998-<span class="year">{new Date().getFullYear()}</span> by jihad khairallah architects</span>
   </footer>
+
+  <script>
+    const filterBtns = Array.from(document.querySelectorAll(".projects-filter"));
+    const cards = Array.from(document.querySelectorAll(".project-card"));
+    filterBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const f = btn.getAttribute("data-filter");
+        filterBtns.forEach((b) => b.classList.toggle("active", b === btn));
+        cards.forEach((c) => {
+          const d = (c.getAttribute("data-discipline") || "").split("|");
+          const show = f === "all" || d.includes(f);
+          c.style.display = show ? "" : "none";
+        });
+      });
+    });
+  </script>
 </Base>
 
 <style>
+  /* discipline filter — mirrors the news filter chips */
+  .projects-filters {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    gap: clamp(20px, 4vw, 56px); margin-top: 30px;
+  }
+  .projects-filter {
+    background: none; border: 0; cursor: pointer; padding: 6px 0;
+    font: inherit; font-size: var(--type-trace); letter-spacing: 0.12em;
+    color: var(--trace); text-transform: lowercase; transition: color 0.3s ease;
+  }
+  .projects-filter:hover, .projects-filter.active { color: var(--ink); }
+
   /* projects — airy square grid.
      gap = half a thumbnail, held at every width via container-query units:
      with N columns and gap = padding = cell/2, cell = 2W/(3N+1), so gap = W/(3N+1).
