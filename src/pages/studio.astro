@@ -3,24 +3,26 @@ import Base from "../layouts/Base.astro";
 ---
 <Base title="studio — jka">
   <section class="studio-hero">
-    <img src="/studio/founders.jpg" alt="the founders of jka, before a kōzō wall" />
+    <img src="/studio/founders.jpg" alt="jihad khairallah and nadeen roufael, founders of jka, before a kōzō wall" />
   </section>
+
+  <p class="studio-credit">jihad khairallah, architecture and interior architecture<br>nadeen roufael, interior architecture and furniture</p>
 
   <div class="studio-hero-gap"></div>
 
   <section class="studio-statement">
-    <p class="studio-statement-text">we remove what does not belong. what remains is architecture: pure line, honest structure, and natural light given room to define the space on its own terms.</p>
+    <p class="studio-statement-text">we look for a long time, then remove what was never needed. what remains is precise, and natural light is given room to define the space.</p>
   </section>
 
   <div class="silence-threshold"></div>
   <section class="studio-section settle">
     <div><span class="tag-index">a</span><span class="tag-name">holistic<br>authorship</span></div>
-    <p class="section-copy">we do not draw an envelope and hand the interior to another set of hands. each commission is held as a single, continuous work, the site's topography sets the datum, the structural grid orders the plan, apertures are cut to admit light as a building material, and that same logic is carried down to the interior architecture and the edge of a single cabinet door. a space is read whole, in one movement, not parcelled into trades. the furniture is not arranged in the room; it is resolved from the geometry that made the room. this is the difference between fitting out a building and authoring one, the work is finished only when nothing further can be removed.</p>
+    <p class="section-copy">we do not draw an envelope and hand the interior to other hands. each commission is one continuous work. the topography of the site sets the datum, the structural grid orders the plan, the openings are cut to bring light in as a material, and the same logic carries down to the interior architecture and to the edge of a single cabinet door. a space is read whole, in one movement, not divided among trades. the furniture is not placed in the room, it is drawn out of the geometry that made the room. this is the difference between fitting out a building and authoring one. the work is finished when nothing further can be removed.</p>
   </section>
   <div class="studio-hairline"></div>
   <section class="studio-section settle">
     <div><span class="tag-index">b</span><span class="tag-name">provenance<br>&amp; longevity</span></div>
-    <p class="section-copy">jka was established in beirut in 1998. close to three decades of built work across lebanon, the levant, and the gulf have yielded what no portfolio can show on its own, judgement earned on difficult sites, in unforgiving climates, against the exacting standards of private clients across the region. beirut taught the discipline of working under constraint; the gulf asked for that discipline at scale. longevity here is not a figure on a letterhead. it is the quiet assurance behind every drawing: that the condition has been seen before, detailed before, resolved before, and that the practice knows, without hesitation, precisely what does not belong in the answer.</p>
+    <p class="section-copy">jka was established in beirut in 1998. close to three decades of built work, in lebanon, the levant, and the gulf, have given what no portfolio can show on its own, judgement, earned on difficult sites, in hard climates, against the standards of private clients across the region. beirut taught us to work under constraint. the gulf asked for the same discipline at scale. longevity here is not a line on a letterhead. it is the quiet behind every drawing, the knowledge that the condition has been seen before, detailed before, resolved before, and that we know, without hesitation, what does not belong in the answer.</p>
   </section>
   <div class="silence-major"></div>
   <section class="studio-grid settle">
@@ -35,7 +37,7 @@ import Base from "../layouts/Base.astro";
     </div>
     <div class="meta-block">
       <b>enquiries</b>mail@jihadk.com<br><br>
-      <b>parameters</b>private residential, workplace, and retail commissions across lebanon, the gulf, and beyond. each engagement begins with a conversation, not a brief.<br><br>
+      <b>parameters</b>private houses, workplaces, and retail, in lebanon, the gulf, and beyond. we take few projects and stay close to each one. the work begins with a conversation, before there is a brief.<br><br>
       <b>studio</b>riverside 2404, sin el fil, beirut · est. 1998
     </div>
   </section>
@@ -68,6 +70,17 @@ import Base from "../layouts/Base.astro";
       object-fit: cover; object-position: center 42%;
     }
     .studio-hero-gap { height: clamp(24px, 5vh, 56px); }  /* statement sits close to the hero */
+
+    /* founders credit — quiet hairline caption beneath the portrait */
+    .studio-credit {
+      margin: clamp(16px, 2.4vh, 26px) auto 0;
+      text-align: center;
+      color: var(--ink-soft);
+      font-weight: 300;
+      font-size: clamp(11px, 1vw, 13px);
+      line-height: 1.75;
+      letter-spacing: 0.02em;
+    }
 
     /* statement — centred, matched to the landing manifesto size; wraps to two lines if needed */
     .studio-statement { padding: 0 var(--inset); text-align: center; }

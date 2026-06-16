@@ -35,8 +35,10 @@ const { title = "jihad khairallah architects." } = Astro.props;
 
   <nav class="global-navigation-header">
     <div class="logo-container">
-      <a class="brand-logo-link" href="/" aria-label="jka — home">
-        <img src="/jka-monogram.png" alt="jka" class="brand-logo" />
+      <a class="brand-lockup" href="/" aria-label="jihad khairallah architects — home">
+        <img src="/jka-monogram.png" alt="" class="brand-logo" />
+        <span class="lockup-jihad">jihad</span>
+        <span class="lockup-name">khairallah architects</span>
       </a>
     </div>
     <div class="extended-menu-links">
@@ -62,7 +64,27 @@ const { title = "jihad khairallah architects." } = Astro.props;
     .global-navigation-header a { pointer-events: auto; }
 
     .logo-container { display: flex; align-items: center; }
-    .logo-container .brand-logo { display: block; height: clamp(26px, 3vw, 36px); width: auto; }
+
+    /* brand lockup: monogram left, "jihad" top-right, "khairallah architects" below.
+       both text lines are pinned to the same right edge, so the last letter of
+       "architects" sits directly under the last letter of "jihad". */
+    .brand-lockup {
+      display: inline-grid;
+      grid-template-columns: auto auto;   /* logo | jihad */
+      grid-template-rows: auto auto;
+      column-gap: 16px; row-gap: 5px;
+      align-items: center;
+      text-decoration: none; color: var(--ink); line-height: 1;
+    }
+    .brand-lockup .brand-logo { grid-column: 1; grid-row: 1; display: block; height: clamp(44px, 5.2vw, 57px); width: auto; }
+    .brand-lockup .lockup-jihad {
+      grid-column: 2; grid-row: 1; justify-self: end; align-self: end;
+      font-size: 18px; letter-spacing: .14em; text-transform: lowercase;
+    }
+    .brand-lockup .lockup-name {
+      grid-column: 1 / -1; grid-row: 2; justify-self: end; white-space: nowrap;
+      font-size: 17px; letter-spacing: .14em; text-transform: lowercase;
+    }
 
     .extended-menu-links { display: flex; align-items: center; gap: 32px; }
     .extended-menu-links a {

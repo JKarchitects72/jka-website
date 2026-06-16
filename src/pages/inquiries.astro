@@ -3,14 +3,14 @@ import Base from "../layouts/Base.astro";
 ---
 <Base title="commission — jka">
   <h1 class="commission-statement settle">a commission begins with a conversation, about a site, a way of living, and what does not belong in either.</h1>
-  <div class="silence-major"></div>
+  <div class="commission-gap-tight"></div>
   <section class="commission-protocol settle">
     <p>we take on a limited number of commissions each year — private residences, workplaces, and retail spaces across lebanon, the gulf, and beyond. write to the studio with a few lines on your site and your intentions. the principal reviews every enquiry personally, and we respond within five working days to begin the conversation.</p>
     <div></div>
   </section>
   <div class="silence-major"></div>
   <div class="commission-mail settle"><a href="mailto:mail@jihadk.com">mail@jihadk.com</a></div>
-  <div class="commission-trace settle">riverside 2404, sin el fil, beirut · est. 1998<br>+961 3 111 354</div>
+  <div class="commission-trace settle">riverside 2404, sin el fil, beirut · est. 1998<br>+961 3 111 354<br>+961 1 487 448</div>
   <div class="silence-module"></div>
   <a class="commission-line" href="/archive"><span>enter the spatial archive</span><span>→</span></a>
   <footer class="site-footer">
@@ -31,4 +31,10 @@ import Base from "../layouts/Base.astro";
     </nav>
     <span class="trace copyright">&copy; 1998-<span class="year">{new Date().getFullYear()}</span> by jihad khairallah architects</span>
   </footer>
+
+  <style>
+    /* statement reads at the site's hairline weight, not bold, and sits closer to the protocol text below */
+    .commission-statement { font-weight: 300; }
+    .commission-gap-tight { height: clamp(14px, 3vh, 32px); }
+  </style>
 </Base>

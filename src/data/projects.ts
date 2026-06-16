@@ -385,6 +385,7 @@ export const projects: Project[] = [
   {
     name: "residence in qornet chahwan", slug: "razmig-kalfayan-residence", year: "2025",
     discipline: ["interior architecture"],
+    narrative: `a residence in qornet chahwan, organised around a single still object. at its centre a black steel hearth stands open on every side on a pale stone plinth, the one dark mass in a white, light-filled plan, the point the rooms turn around. above, a timber ceiling is threaded with continuous light, lowering and warming the space before it lifts again into white. the long glazed walls are veiled in sheer screens, so the daylight enters not as a view but as a soft, even plane, shadowless and quiet. against that calm ground the owner's art and sculpture carry all the colour, the architecture held back so the collection can speak. stone, white, and timber gathered around a still centre, a house composed to be lived in slowly.`,
     typology: "residential", group: "flagship", published: true,
     heroImage: "/projects/Residence%20Razmig%20Kalfayan/RK%20residence.jpg",
     photos: [
