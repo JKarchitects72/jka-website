@@ -160,7 +160,7 @@ const logo = new URL("/jka-monogram.png", site).href;
       entries.forEach((en) => {
         if (en.isIntersecting) { en.target.classList.add('in'); observer.unobserve(en.target); }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.01 });
     document.querySelectorAll('.settle').forEach((el) => observer.observe(el));
   </script>
 

@@ -234,8 +234,8 @@ const titleLine = [project.name, project.location, project.year].filter(Boolean)
       .project-hero { height: 100svh; }
       .record-gallery { max-width: 100%; }   /* widen the matrix on small screens */
       .related-grid { grid-template-columns: repeat(2, 1fr); }
-      .lb-prev, .lb-next { padding: 8px; }
-      .lb-prev svg, .lb-next svg { width: 20px; height: 20px; }
+      .lb-prev, .lb-next { padding: 16px; }
+      .lb-prev svg, .lb-next svg { width: 22px; height: 22px; }
     }
 
     /* the extended nav floats over the dark hero here — lift the links to light */
@@ -284,6 +284,21 @@ const titleLine = [project.name, project.location, project.year].filter(Boolean)
         if (e.key === "ArrowLeft") show(i - 1);
         if (e.key === "ArrowRight") show(i + 1);
       });
+
+      // touch swipe — left/right to step through photos on mobile
+      let touchStartX = 0, touchStartY = 0;
+      lb.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartY = e.changedTouches[0].clientY;
+      }, { passive: true });
+      lb.addEventListener("touchend", (e) => {
+        if (!lb.classList.contains("open")) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+          show(dx < 0 ? i + 1 : i - 1);   // swipe left → next, swipe right → previous
+        }
+      }, { passive: true });
     }
   </script>
 </Base>
